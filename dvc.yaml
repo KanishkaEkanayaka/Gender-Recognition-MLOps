@@ -1,0 +1,37 @@
+stages:
+  data_ingestion:
+    cmd: python src/cnnGenderClassifier/pipeline/stage_01_data_ingestion.py
+    deps:
+      - src/cnnGenderClassifier/pipeline/stage_01_data_ingestion.py
+      - config/config.yaml
+    outs:
+      - artifacts/data_ingestion/Gender
+
+  prepare_base_model:
+    cmd: python src/cnnGenderClassifier/pipeline/stage_02_prepare_base_model.py
+    deps:
+      - src/cnnGenderClassifier/pipeline/stage_02_prepare_base_model.py
+      - config/config.yaml
+    params:
+      - IMAGE_SIZE
+      - INCLUDE_TOP
+      - CLASSES
+      - WEIGHTS
+      - LEARNING_RATE
+    outs:
+      - artifacts/prepare_base_model
+
+  training:
+    cmd: python src/cnnGenderClassifier/pipeline/stage_03_model_trainer.py
+    deps:
+      - src/cnnGenderClassifier/pipeline/stage_03_model_trainer.py
+      - config/config.yaml
+      - artifacts/data_ingestion/Gender
+      - artifacts/prepare_base_model
+    params:
+      - IMAGE_SIZE
+      - EPOCHS
+      - BATCH_SIZE
+      - AUGMENTATION
+    outs:
+      - artifacts/training/model.keras
