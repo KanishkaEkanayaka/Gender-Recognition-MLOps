@@ -1,0 +1,81 @@
+schema: '2.0'
+stages:
+  data_ingestion:
+    cmd: python src/cnnGenderClassifier/pipeline/stage_01_data_ingestion.py
+    deps:
+    - path: config/config.yaml
+      hash: md5
+      md5: 8f5375a2f47dc8faae4a40ca4e5c57db
+      size: 571
+    - path: src/cnnGenderClassifier/pipeline/stage_01_data_ingestion.py
+      hash: md5
+      md5: 694a686478e24416a808532c99f1c3b8
+      size: 891
+    outs:
+    - path: artifacts/data_ingestion/Gender
+      hash: md5
+      md5: 0b9d3a8ffbf470812dde5d958ebad485.dir
+      size: 225894231
+      nfiles: 47009
+  prepare_base_model:
+    cmd: python src/cnnGenderClassifier/pipeline/stage_02_prepare_base_model.py
+    deps:
+    - path: config/config.yaml
+      hash: md5
+      md5: 8f5375a2f47dc8faae4a40ca4e5c57db
+      size: 571
+    - path: src/cnnGenderClassifier/pipeline/stage_02_prepare_base_model.py
+      hash: md5
+      md5: 8c7de7ebe977dad50bd682040fc87b76
+      size: 963
+    params:
+      params.yaml:
+        CLASSES: 2
+        IMAGE_SIZE:
+        - 224
+        - 224
+        - 3
+        INCLUDE_TOP: false
+        LEARNING_RATE: 0.001
+        WEIGHTS: imagenet
+    outs:
+    - path: artifacts/prepare_base_model
+      hash: md5
+      md5: 83d69ddaf3ec11efd8375b67024d0ec0.dir
+      size: 118056534
+      nfiles: 2
+  training:
+    cmd: python src/cnnGenderClassifier/pipeline/stage_03_model_trainer.py
+    deps:
+    - path: artifacts/data_ingestion/Gender
+      hash: md5
+      md5: 0b9d3a8ffbf470812dde5d958ebad485.dir
+      size: 225894231
+      nfiles: 47009
+    - path: artifacts/prepare_base_model
+      hash: md5
+      md5: 83d69ddaf3ec11efd8375b67024d0ec0.dir
+      size: 118056534
+      nfiles: 2
+    - path: config/config.yaml
+      hash: md5
+      md5: 8f5375a2f47dc8faae4a40ca4e5c57db
+      size: 571
+    - path: src/cnnGenderClassifier/pipeline/stage_03_model_trainer.py
+      hash: md5
+      md5: 77c627e365ae1697594b5b0ea6349fce
+      size: 893
+    params:
+      params.yaml:
+        AUGMENTATION: true
+        BATCH_SIZE: 50
+        EPOCHS: 2
+        IMAGE_SIZE:
+        - 224
+        - 224
+        - 3
+    outs:
+    - path: artifacts/training/model.keras
+      hash: md5
+      md5: c07146f30f184f554f923c4ffbe55b24
+      size: 59133304
